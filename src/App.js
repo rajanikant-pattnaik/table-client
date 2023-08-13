@@ -5,6 +5,7 @@ import { Modal, Button } from "react-bootstrap";
 import emailjs from "@emailjs/browser";
 
 const App = () => {
+  const BASE_URL="https://table-mern-backend.onrender.com/api/v1";
   const [Name, setName] = useState("");
   const [PhoneNo, setPhoneNo] = useState("");
   const [Email, setEmail] = useState("");
@@ -43,7 +44,7 @@ const App = () => {
   const addData = async () => {
     try {
       const data = { Name, PhoneNo, Email, Hobbies };
-      const res = await axios.post("/add", data);
+      const res = await axios.post(`${BASE_URL}/add`, data);
       console.log(res);
       setName("");
       setEmail("");
@@ -63,7 +64,7 @@ const App = () => {
   const updateData = async () => {
     try {
       const data = { _id, Name, PhoneNo, Email, Hobbies };
-      const res = await axios.post("/update", data);
+      const res = await axios.post(`${BASE_URL}/update`, data);
       console.log(res);
       setName("");
       setEmail("");
@@ -76,7 +77,7 @@ const App = () => {
   };
   const deleteData = async () => {
     try {
-      await axios.post("/delete", { _id });
+      await axios.post(`${BASE_URL}/delete`, { _id });
       setName("");
       setEmail("");
       setHobbies("");
@@ -110,7 +111,7 @@ const App = () => {
     window.location.reload();
   };
   const getAllValue = async () => {
-    const res = await axios.get("/getAll");
+    const res = await axios.get(`${BASE_URL}/getAll`);
     setData(res.data.allData);
   };
   useEffect(() => {
