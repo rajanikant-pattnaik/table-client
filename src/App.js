@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import { message } from "antd";
+import { Modal, Button } from "react-bootstrap";
 import emailjs from "@emailjs/browser";
 
 const App = () => {
@@ -12,6 +13,10 @@ const App = () => {
   const [handle, setHandle] = useState("add");
   const [_id, set_id] = useState("");
   const [mailData, setMailData] = useState([]);
+  const [isShow, invokeModal] = useState(false);
+  const initModal = () => {
+    return invokeModal(!isShow);
+  };
   const form = useRef();
 
   const sendEmail = (e) => {
@@ -26,8 +31,8 @@ const App = () => {
       )
       .then(
         (result) => {
-          message.success(`data sent to mailid info@redpositive.in`)
-          setMailData([])
+          message.success(`data sent to mailid info@redpositive.in`);
+          setMailData([]);
           window.location.reload();
         },
         (error) => {
@@ -88,6 +93,7 @@ const App = () => {
     setHobbies(Hobbies);
     setPhoneNo(PhoneNo);
     set_id(_id);
+    invokeModal(!isShow);
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -98,6 +104,7 @@ const App = () => {
     } else if (handle === "delete") {
       deleteData();
     }
+    invokeModal(!isShow);
     message.success(`data ${handle}ed`);
     setHandle("add");
     window.location.reload();
@@ -111,73 +118,82 @@ const App = () => {
   }, []);
   return (
     <div>
-      <form
-        style={{
-          width: "25rem",
-          justifyContent: "center",
-          "margin-left": "20rem",
-        }}
-      >
-        <div className="mb-3">
-          <label htmlFor="Name" className="form-label">
-            Name
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            id="exampleInputEmail1"
-            aria-describedby="emailHelp"
-            name="Name"
-            value={Name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="PhoneNo" className="form-label">
-            PhoneNo
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            id="exampleInputEmail1"
-            aria-describedby="emailHelp"
-            name="PhoneNo"
-            value={PhoneNo}
-            onChange={(e) => setPhoneNo(e.target.value)}
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="Email" className="form-label">
-            Email
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            id="exampleInputEmail1"
-            aria-describedby="emailHelp"
-            name="Email"
-            value={Email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="Hobbies" className="form-label">
-            Hobbies
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            id="exampleInputEmail1"
-            aria-describedby="emailHelp"
-            name="Hobbies"
-            value={Hobbies}
-            onChange={(e) => setHobbies(e.target.value)}
-          />
-        </div>
-        <button onClick={handleSubmit} className="btn btn-primary">
-          {handle} data
-        </button>
-      </form>
+      <Button variant="success" onClick={initModal} style={{"marginLeft":"40rem"}}>
+        {handle} data
+      </Button>
+      <Modal show={isShow}>
+        <Modal.Header closeButton onClick={initModal}>
+          <Modal.Title>{`${handle} form`}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <form
+            style={{
+              width: "25rem",
+            }}
+          >
+            <div className="mb-3">
+              <label htmlFor="Name" className="form-label">
+                Name
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                id="exampleInputEmail1"
+                aria-describedby="emailHelp"
+                name="Name"
+                value={Name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <div className="mb-3">
+              <label htmlFor="PhoneNo" className="form-label">
+                PhoneNo
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                id="exampleInputEmail1"
+                aria-describedby="emailHelp"
+                name="PhoneNo"
+                value={PhoneNo}
+                onChange={(e) => setPhoneNo(e.target.value)}
+              />
+            </div>
+            <div className="mb-3">
+              <label htmlFor="Email" className="form-label">
+                Email
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                id="exampleInputEmail1"
+                aria-describedby="emailHelp"
+                name="Email"
+                value={Email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="mb-3">
+              <label htmlFor="Hobbies" className="form-label">
+                Hobbies
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                id="exampleInputEmail1"
+                aria-describedby="emailHelp"
+                name="Hobbies"
+                value={Hobbies}
+                onChange={(e) => setHobbies(e.target.value)}
+              />
+            </div>
+            <button onClick={handleSubmit} className="btn btn-primary">
+              {handle} data
+            </button>
+          </form>
+        </Modal.Body>
+      </Modal>
+
       <table style={{ marginLeft: "20rem" }}>
         <tr style={{ marginBottom: "5rem" }}>
           <th>select</th>
@@ -236,10 +252,8 @@ const App = () => {
           })}
         </tbody>
       </table>
-      <div style={{"marginLeft":"20rem"}}>
-        {
-          mailData.map((data)=>JSON.stringify(data)).toString()
-        }
+      <div style={{ marginLeft: "20rem" }}>
+        {mailData.map((data) => JSON.stringify(data)).toString()}
       </div>
       <form
         ref={form}
@@ -250,30 +264,32 @@ const App = () => {
           "margin-left": "20rem",
         }}
       >
-        <label className="form-label" style={{"display":"none"}}>Name</label>
+        <label className="form-label" style={{ display: "none" }}>
+          Name
+        </label>
         <input
           type="text"
           name="from-name"
           className="form-control"
           aria-describedby="emailHelp"
-          style={{"display":"none"}}
+          style={{ display: "none" }}
         />
-        <label style={{"display":"none"}}>Email</label>
+        <label style={{ display: "none" }}>Email</label>
         <input
           type="email"
           name="from-email"
           className="form-control"
           aria-describedby="emailHelp"
-          style={{"display":"none"}}
+          style={{ display: "none" }}
         />
-        <label style={{"display":"none"}}>Message</label>
+        <label style={{ display: "none" }}>Message</label>
         <input
           name="message"
           className="form-control input-lg"
           aria-describedby="emailHelp"
-          value={mailData.map((data)=>(JSON.stringify(data))).toString()}
+          value={mailData.map((data) => JSON.stringify(data)).toString()}
           height={100}
-          style={{"display":"none"}}
+          style={{ display: "none" }}
         />
         <input type="submit" value="Send Email" className="btn btn-primary" />
       </form>
