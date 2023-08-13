@@ -1,5 +1,7 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { message } from "antd";
+import emailjs from "@emailjs/browser";
 
 const App = () => {
   const [Name, setName] = useState("");
@@ -9,9 +11,32 @@ const App = () => {
   const [data, setData] = useState([]);
   const [handle, setHandle] = useState("add");
   const [_id, set_id] = useState("");
+  const [mailData, setMailData] = useState([]);
+  const form = useRef();
+
+  const sendEmail = (e) => {
+    e.preventDefault();
+
+    emailjs
+      .sendForm(
+        "service_tvxp0ur",
+        "template_8mj129s",
+        form.current,
+        "N--B1oUv5I0YMOqYK"
+      )
+      .then(
+        (result) => {
+          message.success(`data sent to mailid info@redpositive.in`)
+          setMailData([])
+          window.location.reload();
+        },
+        (error) => {
+          console.log(error.text);
+        }
+      );
+  };
   const addData = async () => {
     try {
-      console.log({ Name, PhoneNo, Email, Hobbies });
       const data = { Name, PhoneNo, Email, Hobbies };
       const res = await axios.post("/add", data);
       console.log(res);
@@ -23,9 +48,15 @@ const App = () => {
       console.log(error);
     }
   };
+  const handleAddToMail = (Name, PhoneNo, Email, Hobbies, _id, bool) => {
+    if (bool) {
+      setMailData([...mailData, { _id, Name, PhoneNo, Email, Hobbies }]);
+    } else {
+      setMailData(mailData.filter((element) => element._id !== _id));
+    }
+  };
   const updateData = async () => {
     try {
-      console.log({ _id, Name, PhoneNo, Email, Hobbies });
       const data = { _id, Name, PhoneNo, Email, Hobbies };
       const res = await axios.post("/update", data);
       console.log(res);
@@ -40,8 +71,7 @@ const App = () => {
   };
   const deleteData = async () => {
     try {
-      const res = await axios.post("/delete", { _id });
-      console.log(res);
+      await axios.post("/delete", { _id });
       setName("");
       setEmail("");
       setHobbies("");
@@ -68,7 +98,9 @@ const App = () => {
     } else if (handle === "delete") {
       deleteData();
     }
+    message.success(`data ${handle}ed`);
     setHandle("add");
+    window.location.reload();
   };
   const getAllValue = async () => {
     const res = await axios.get("/getAll");
@@ -143,7 +175,7 @@ const App = () => {
           />
         </div>
         <button onClick={handleSubmit} className="btn btn-primary">
-          {handle}
+          {handle} data
         </button>
       </form>
       <table style={{ marginLeft: "20rem" }}>
@@ -164,7 +196,13 @@ const App = () => {
             return (
               <tr key={index} style={{ marginBottom: "5rem" }}>
                 <td>
-                  <input type="checkbox" />
+                  <input
+                    type="checkbox"
+                    onChange={(e) => {
+                      const bool = e.target.checked;
+                      handleAddToMail(Name, PhoneNo, Email, Hobbies, _id, bool);
+                    }}
+                  />
                 </td>
                 <td style={{ textAlign: "center" }}>{index + 1}</td>
                 <td>{Name}</td>
@@ -198,6 +236,47 @@ const App = () => {
           })}
         </tbody>
       </table>
+      <div style={{"marginLeft":"20rem"}}>
+        {
+          mailData.map((data)=>JSON.stringify(data)).toString()
+        }
+      </div>
+      <form
+        ref={form}
+        onSubmit={sendEmail}
+        style={{
+          width: "25rem",
+          justifyContent: "center",
+          "margin-left": "20rem",
+        }}
+      >
+        <label className="form-label" style={{"display":"none"}}>Name</label>
+        <input
+          type="text"
+          name="from-name"
+          className="form-control"
+          aria-describedby="emailHelp"
+          style={{"display":"none"}}
+        />
+        <label style={{"display":"none"}}>Email</label>
+        <input
+          type="email"
+          name="from-email"
+          className="form-control"
+          aria-describedby="emailHelp"
+          style={{"display":"none"}}
+        />
+        <label style={{"display":"none"}}>Message</label>
+        <input
+          name="message"
+          className="form-control input-lg"
+          aria-describedby="emailHelp"
+          value={mailData.map((data)=>(JSON.stringify(data))).toString()}
+          height={100}
+          style={{"display":"none"}}
+        />
+        <input type="submit" value="Send Email" className="btn btn-primary" />
+      </form>
     </div>
   );
 };
